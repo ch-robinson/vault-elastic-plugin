@@ -23,7 +23,7 @@
 5. Enabling database engine: ```VAULT_ADDR=http://127.0.0.1:8200 vault secrets enable database```
 5. Add the plugin: ```VAULT_ADDR=http://127.0.0.1:8200 <path-to-vault>/vault.exe write sys/plugins/catalog/vault-elastic-plugin \ sha_256=<from-create-hash> command="vault-elastic-plugin.exe"```
 6. Run the plugin: ```VAULT_ADDR=http://127.0.0.1:8200 <path-to-vault>/vault write database/config/elastic_test \ connection_url=<elastic-base-uri> username=vault_admin password=<password> plugin_name=vault-elastic-plugin allowed_roles="*"```
-7. Add a role: ```VAULT_ADDR=http://127.0.0.1:8200 <path-to-vault>/vault write database/roles/my-role db_name=elastic_test creation_statements='{"roles":"testuser"}'```
+7. Add a role: ```VAULT_ADDR=http://127.0.0.1:8200 <path-to-vault>/vault write database/roles/my-role db_name=elastic_test creation_statements=kibanauser``` (kibanauser is a valid role that exists)
 8. Try it out: ```VAULT_ADDR=http://127.0.0.1:8200 <path-to-vault>/vault read database/config/elastic_test```
 
 ### Build
