@@ -1,0 +1,10 @@
+package: github.com/ch-robinson/vault-elastic-plugin
+import:
+- package: github.com/stretchr/testify
+  version: ^1.1
+- package: github.com/spf13/viper
+  version: 346299ea79e446ebdddb834371ceba2e5926b732
+- package: github.com/hashicorp/vault
+  version: master
+- package: github.com/mitchellh/mapstructure
+  version: master
