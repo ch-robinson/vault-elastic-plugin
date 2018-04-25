@@ -36,7 +36,7 @@ func New(httpClient interfaces.IHTTPClient) (interface{}, error) {
 		CredentialsProducer: &credsutil.SQLCredentialsProducer{
 			DisplayNameLen: 15,
 			RoleNameLen:    15,
-			UsernameLen:    100,
+			UsernameLen:    30,
 			Separator:      "-",
 		},
 	}
@@ -66,7 +66,7 @@ func (m *Database) Type() (string, error) {
 }
 
 // CreateUser creates a new user in Elastic DB
-func (m *Database) CreateUser(ctx context.Context, statements dbplugin.Statements, usernameConfig dbplugin.UsernameConfig, expiration time.Time) (username string, password string, err error) {
+func (m *Database) CreateUser(ctx context.Context, statements dbplugin.Statements, usernameConfig dbplugin.UsernameConfig, expiration time.Time) (string, string, error) {
 	// Generates the new password
 	newPassword, err := m.GeneratePassword()
 
@@ -83,8 +83,7 @@ func (m *Database) CreateUser(ctx context.Context, statements dbplugin.Statement
 
 	var body = make(map[string]interface{})
 	body["password"] = newPassword
-	// TODO figure out roles
-	// body["roles"] = statements.Creation[0]
+	body["roles"] = statements.Creation
 
 	var url = fmt.Sprintf("%s/_xpack/security/user/%s", m.ConnectionURL, newUsername)
 
@@ -112,7 +111,7 @@ func (m *Database) CreateUser(ctx context.Context, statements dbplugin.Statement
 		return "", "", fmt.Errorf("User was not created: %+v", response)
 	}
 
-	return "", "", nil
+	return newUsername, newPassword, nil
 }
 
 // RenewUser is not currently used
