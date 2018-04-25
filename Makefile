@@ -3,8 +3,9 @@ VERSION:=${MAIN_VERSION}\#$(shell git log -n 1 --pretty=format:"%h")
 PACKAGES:=$(shell go list ./... | sed -n '1!p' | grep -v -e /vendor/ -e github.com/ch-robinson/vault-elastic-plugin/plugin/interfaces)
 LDFLAGS:=-ldflags "-X github.com/ch-robinson/vault-elastic-plugin/plugin.Version=${VERSION}"
 
-default: run
-
+default: test
+	make build 
+	
 test:
 	@echo "mode: count" > coverage-all.out
 	@echo
@@ -35,14 +36,14 @@ depends:
 .PHONY: depends
 	
 run:
-	go run plugin/main.go
+	go run main.go
 
 .PHONY: run
 
 build:
-	GOOS=linux GOARCH=amd64 go build -a -o bin/linux/vault-elastic-plugin-x86-64 plugin/main.go
-	GOOS=windows GOARCH=amd64 go build -a -o bin/windows/vault-elastic-plugin-x86-64.exe plugin/main.go
-	GOOS=darwin GOARCH=amd64 go build -a -o bin/mac/vault-elastic-plugin-x86-64 plugin/main.go
+	GOOS=linux GOARCH=amd64 go build -a -o bin/linux/vault-elastic-plugin-x86-64 main.go
+	GOOS=windows GOARCH=amd64 go build -a -o bin/windows/vault-elastic-plugin-x86-64.exe main.go
+	GOOS=darwin GOARCH=amd64 go build -a -o bin/mac/vault-elastic-plugin-x86-64 main.go
 
 .PHONY: build 
 

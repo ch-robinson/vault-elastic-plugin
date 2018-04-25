@@ -1,4 +1,4 @@
-package main
+package plugin
 
 // Version specifies the current version of the application.
 // The value of this variable is replaced with the latest git tag
