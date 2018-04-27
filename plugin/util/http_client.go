@@ -24,24 +24,27 @@ func (c *HTTPClient) Do(req *http.Request) (*http.Response, error) {
 	return c.client.Do(req)
 }
 
-// BuildPostBasicAuthRequest creates an http.Request with basic authoriztion header.
+// BuildBasicAuthRequest creates an http.Request with basic authoriztion header.
 // body must be map[string]interface{}
-func (c *HTTPClient) BuildPostBasicAuthRequest(requestURL, username, password *string, body map[string]interface{}) *http.Request {
-	reqBody, err := json.Marshal(body)
+func (c *HTTPClient) BuildBasicAuthRequest(requestURL, username, password, httpMethod string, body map[string]interface{}) *http.Request {
+	recloser := &ClosingBuffer{}
 
-	if err != nil {
-		panic(err)
+	if len(body) > 0 {
+		reqBody, err := json.Marshal(body)
+		if err != nil {
+			panic(err)
+		}
+
+		recloser = NewClosingBuffer(bytes.NewBuffer(reqBody)).GetReadCloser().(*ClosingBuffer)
+
+		if err != nil {
+			panic(err)
+		}
 	}
 
-	readCloser := NewClosingBuffer(bytes.NewBuffer(reqBody)).GetReadCloser()
+	req, err := http.NewRequest(httpMethod, requestURL, recloser)
 
-	if err != nil {
-		panic(err)
-	}
-
-	req, err := http.NewRequest("POST", *requestURL, readCloser)
-
-	req.SetBasicAuth(*username, *password)
+	req.SetBasicAuth(username, password)
 
 	if err != nil {
 		panic(err)

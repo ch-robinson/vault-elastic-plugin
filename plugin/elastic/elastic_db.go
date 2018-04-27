@@ -87,7 +87,7 @@ func (m *Database) CreateUser(ctx context.Context, statements dbplugin.Statement
 
 	var url = fmt.Sprintf("%s/_xpack/security/user/%s", m.ConnectionURL, newUsername)
 
-	var request = m.HTTPClient.BuildPostBasicAuthRequest(&url, &m.Username, &m.Password, body)
+	var request = m.HTTPClient.BuildBasicAuthRequest(url, m.Username, m.Password, "POST", body)
 
 	res, err := m.HTTPClient.Do(request)
 
