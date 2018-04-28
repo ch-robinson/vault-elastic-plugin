@@ -1,7 +1,18 @@
-MAIN_VERSION:=$(shell git describe --abbrev=0 --tags || echo "0.1")
+MAIN_VERSION:=$(shell git describe --always || echo "1.0")
 VERSION:=${MAIN_VERSION}\#$(shell git log -n 1 --pretty=format:"%h")
 PACKAGES:=$(shell go list ./... | sed -n '1!p' | grep -v -e /vendor/ -e github.com/ch-robinson/vault-elastic-plugin/plugin/interfaces)
 LDFLAGS:=-ldflags "-X github.com/ch-robinson/vault-elastic-plugin/plugin.Version=${VERSION}"
+
+ifeq ($(OS),Windows_NT)
+    DETECTED_OS := Windows
+	EXECUTABLE_EXT := .exe
+else
+    DETECTED_OS := $(shell sh -c 'uname -s 2>/dev/null || echo not')
+	EXECUTABLE_EXT :=
+endif
+
+PLUGIN_DIRECTORY := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))bin/$(shell echo $(DETECTED_OS) | tr A-Z a-z)
+
 
 default: test
 	make build 
@@ -43,7 +54,7 @@ run:
 build:
 	GOOS=linux GOARCH=amd64 go build -a -o bin/linux/vault-elastic-plugin-x86-64 main.go
 	GOOS=windows GOARCH=amd64 go build -a -o bin/windows/vault-elastic-plugin-x86-64.exe main.go
-	GOOS=darwin GOARCH=amd64 go build -a -o bin/mac/vault-elastic-plugin-x86-64 main.go
+	GOOS=darwin GOARCH=amd64 go build -a -o bin/darwin/vault-elastic-plugin-x86-64 main.go
 
 .PHONY: build 
 
@@ -51,3 +62,48 @@ clean:
 	rm -rf vendor bin coverage.out coverage-all.out
 
 .PHONY: clean
+
+run-vault:
+	@echo "setting up Vault config.hcl ..."
+ifeq ($(DETECTED_OS),Windows)
+	@echo 'plugin_directory = "$(subst /,\\\\,$(PLUGIN_DIRECTORY))"' > ${PLUGIN_DIRECTORY}/config.hcl
+else 
+	@echo 'plugin_directory = "$(PLUGIN_DIRECTORY)"' > ${PLUGIN_DIRECTORY}/config.hcl
+endif
+	vault${EXECUTABLE_EXT} server -dev -config ${PLUGIN_DIRECTORY}/config.hcl
+
+.PHONY: run-vault
+
+test-plugin: build
+	@VAULT_ADDR=http://127.0.0.1:8200 vault${EXECUTABLE_EXT} secrets enable database
+	
+	@VAULT_ADDR=http://127.0.0.1:8200 vault${EXECUTABLE_EXT} write sys/plugins/catalog/vault-elastic-plugin \
+	sha_256=$(shell openssl sha256 $(PLUGIN_DIRECTORY)/vault-elastic-plugin-x86-64$(EXECUTABLE_EXT) | sed 's,SHA256($(PLUGIN_DIRECTORY)/vault-elastic-plugin-x86-64$(EXECUTABLE_EXT))=,,g' | sed -e 's/^[[:space:]]*//') \
+	command="vault-elastic-plugin-x86-64${EXECUTABLE_EXT}"
+
+	@VAULT_ADDR=http://127.0.0.1:8200 vault${EXECUTABLE_EXT} write database/config/elastic_test \
+	connection_url=${ELASTIC_BASE_URI} \
+	username=${ELASTIC_USERNAME} \
+	password=${ELASTIC_PASSWORD} \
+	plugin_name=vault-elastic-plugin \
+	allowed_roles="*"
+
+	@VAULT_ADDR=http://127.0.0.1:8200 vault${EXECUTABLE_EXT} write database/roles/my-role \
+	db_name=elastic_test \
+	creation_statements=kibanauser
+
+	# Example success:
+	# {
+	# 	"request_id": "ee9ba65f-465f-a187-0c05-83afe0de1008",
+	# 	"lease_id": "database/creds/my-role/b01dd000-ad88-d617-0480-b9fd7494914e",
+	# 	"lease_duration": 2764800,
+	# 	"renewable": true,
+	# 	"data": {
+	# 		"password": "A1a-7uxq992801vr2wv3",
+	# 		"username": "v-root-my-role-7yxuu1x67wu91q2"
+	# 	},
+	# 	"warnings": null
+	# }
+	@VAULT_ADDR=http://127.0.0.1:8200 vault read -format=json database/creds/my-role
+
+.PHONY: test-plugin

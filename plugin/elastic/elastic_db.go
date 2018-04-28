@@ -85,6 +85,10 @@ func (m *Database) CreateUser(ctx context.Context, statements dbplugin.Statement
 	body["password"] = newPassword
 	body["roles"] = statements.Creation
 
+	if len(statements.Creation) == 0 {
+		return "", "", fmt.Errorf("roles array is required when creating a user")
+	}
+
 	var url = fmt.Sprintf("%s/_xpack/security/user/%s", m.ConnectionURL, newUsername)
 
 	var request = m.HTTPClient.BuildBasicAuthRequest(url, m.Username, m.Password, "POST", body)
