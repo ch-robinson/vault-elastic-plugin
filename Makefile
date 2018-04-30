@@ -74,13 +74,21 @@ endif
 
 .PHONY: run-vault
 
-test-plugin: build
+test-plugin: 
+ifeq ($(INCLUDE_BUILD),true)
+	make build 
+endif
+
+ifeq ($(RUN_ONLY), false)
+	@echo "Enabling Vault database"
 	@VAULT_ADDR=http://127.0.0.1:8200 vault${EXECUTABLE_EXT} secrets enable database
 	
+	@echo "Registering plugin with Vault"
 	@VAULT_ADDR=http://127.0.0.1:8200 vault${EXECUTABLE_EXT} write sys/plugins/catalog/vault-elastic-plugin \
 	sha_256=$(shell openssl sha256 $(PLUGIN_DIRECTORY)/vault-elastic-plugin-x86-64$(EXECUTABLE_EXT) | sed 's,SHA256($(PLUGIN_DIRECTORY)/vault-elastic-plugin-x86-64$(EXECUTABLE_EXT))=,,g' | sed -e 's/^[[:space:]]*//') \
 	command="vault-elastic-plugin-x86-64${EXECUTABLE_EXT}"
 
+	@echo "Configuring Elastic connection and plugin"
 	@VAULT_ADDR=http://127.0.0.1:8200 vault${EXECUTABLE_EXT} write database/config/elastic_test \
 	connection_url=${ELASTIC_BASE_URI} \
 	username=${ELASTIC_USERNAME} \
@@ -88,10 +96,13 @@ test-plugin: build
 	plugin_name=vault-elastic-plugin \
 	allowed_roles="*"
 
+	@echo "Creating 'my-role'"
 	@VAULT_ADDR=http://127.0.0.1:8200 vault${EXECUTABLE_EXT} write database/roles/my-role \
 	db_name=elastic_test \
 	creation_statements=kibanauser
+endif
 
+	@echo "Running plugin"
 	# Example success:
 	# {
 	# 	"request_id": "ee9ba65f-465f-a187-0c05-83afe0de1008",

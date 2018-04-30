@@ -18,8 +18,11 @@
 
 1. Download [Vault](https://www.vaultproject.io/downloads.html) and extract the compressed file to the location of your choosing
 2. Add Vault to path
-3. Run Vault ```make run-vault```
-4. Try it out ```make test-plugin ELASTIC_BASE_URI=<uri> ELASTIC_PASSWORD=<password> ELASTIC_USERNAME=<username>```
+3. In a new terminal run Vault: ```make run-vault```
+4. In a new terminal run: 
+    - With build and vault configuration: ```make test-plugin ELASTIC_BASE_URI=<uri> ELASTIC_PASSWORD=<password> ELASTIC_USERNAME=<username>```
+    - Without build: ```make test-plugin ELASTIC_BASE_URI=<uri> ELASTIC_PASSWORD=<password> ELASTIC_USERNAME=<username> INCLUDE_BUILD=false```
+    - Run plugin only (leave Vault running): ```make test-plugin ELASTIC_BASE_URI=<uri> ELASTIC_PASSWORD=<password> ELASTIC_USERNAME=<username> INCLUDE_BUILD=false RUN_ONLY=true```
 
 ### Build
 
