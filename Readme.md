@@ -17,14 +17,12 @@
 ### Testing locally
 
 1. Download [Vault](https://www.vaultproject.io/downloads.html) and extract the compressed file to the location of your choosing
-2. Create the config.hcl: ```echo 'plugin_dirctory = "<path-to-plugin-binary>"' > config.hcl```
-3. Run Vault locally (assuming the executable is in path): ```vault server -dev -config config.hcl```
-4. Create hash: ```cd bin && openssl sha256 bin/<system>/vault-elastic-plugin-x86-64```
-5. Enabling database engine: ```VAULT_ADDR=http://127.0.0.1:8200 vault secrets enable database```
-5. Add the plugin: ```VAULT_ADDR=http://127.0.0.1:8200 <path-to-vault>/vault.exe write sys/plugins/catalog/vault-elastic-plugin \ sha_256=<from-create-hash> command="vault-elastic-plugin.exe"```
-6. Run the plugin: ```VAULT_ADDR=http://127.0.0.1:8200 <path-to-vault>/vault write database/config/elastic_test \ connection_url=<elastic-base-uri> username=vault_admin password=<password> plugin_name=vault-elastic-plugin allowed_roles="*"```
-7. Add a role: ```VAULT_ADDR=http://127.0.0.1:8200 <path-to-vault>/vault write database/roles/my-role db_name=elastic_test creation_statements=kibanauser``` (kibanauser is a valid role that exists)
-8. Try it out: ```VAULT_ADDR=http://127.0.0.1:8200 <path-to-vault>/vault read database/config/elastic_test```
+2. Add Vault to path
+3. In a new terminal run Vault: ```make run-vault```
+4. In a new terminal run: 
+    - With build and vault configuration: ```make test-plugin ELASTIC_BASE_URI=<uri> ELASTIC_PASSWORD=<password> ELASTIC_USERNAME=<username>```
+    - Without build: ```make test-plugin ELASTIC_BASE_URI=<uri> ELASTIC_PASSWORD=<password> ELASTIC_USERNAME=<username> INCLUDE_BUILD=false```
+    - Run plugin only (leave Vault running): ```make test-plugin ELASTIC_BASE_URI=<uri> ELASTIC_PASSWORD=<password> ELASTIC_USERNAME=<username> INCLUDE_BUILD=false RUN_ONLY=true```
 
 ### Build
 
