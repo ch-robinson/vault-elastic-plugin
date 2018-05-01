@@ -99,7 +99,8 @@ ifeq ($(RUN_ONLY), false)
 	@echo "Creating 'my-role'"
 	@VAULT_ADDR=http://127.0.0.1:8200 vault${EXECUTABLE_EXT} write database/roles/my-role \
 	db_name=elastic_test \
-	creation_statements=kibanauser
+	creation_statements=kibanauser \
+	default_ttl=5
 endif
 
 	@echo "Running plugin"
