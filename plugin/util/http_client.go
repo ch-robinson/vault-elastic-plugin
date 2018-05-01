@@ -26,33 +26,36 @@ func (c *HTTPClient) Do(req *http.Request) (*http.Response, error) {
 
 // BuildBasicAuthRequest creates an http.Request with basic authoriztion header.
 // body must be map[string]interface{}
-func (c *HTTPClient) BuildBasicAuthRequest(requestURL, username, password, httpMethod string, body map[string]interface{}) *http.Request {
-	recloser := &ClosingBuffer{}
+func (c *HTTPClient) BuildBasicAuthRequest(requestURL, username, password, httpMethod string, body map[string]interface{}) (*http.Request, error) {
+	var req *http.Request
+	var err error
 
-	if len(body) > 0 {
+	if body != nil && len(body) > 0 {
 		reqBody, err := json.Marshal(body)
 		if err != nil {
-			panic(err)
+			return nil, err
 		}
 
-		recloser = NewClosingBuffer(bytes.NewBuffer(reqBody)).GetReadCloser().(*ClosingBuffer)
+		recloser := NewClosingBuffer(bytes.NewBuffer(reqBody)).GetReadCloser().(*ClosingBuffer)
 
 		if err != nil {
-			panic(err)
+			return nil, err
 		}
-	}
 
-	req, err := http.NewRequest(httpMethod, requestURL, recloser)
+		req, err = http.NewRequest(httpMethod, requestURL, recloser)
+	} else {
+		req, err = http.NewRequest(httpMethod, requestURL, nil)
+	}
 
 	req.SetBasicAuth(username, password)
 
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	c.addHeaders(&req.Header)
 
-	return req
+	return req, nil
 }
 
 // ReadHTTPResponse returns the response body as map[string]interface{}

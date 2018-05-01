@@ -38,9 +38,9 @@ func (m *MockHTTPClient) Get(url string, accessToken, authType *string) (*http.R
 }
 
 // BuildPostBasicAuthRequest mocks building a post request with basic auth
-func (m *MockHTTPClient) BuildPostBasicAuthRequest(requestURL, username, password *string, body map[string]interface{}) *http.Request {
-	if requestURL == nil || *requestURL == "bad" {
-		return nil
+func (m *MockHTTPClient) BuildBasicAuthRequest(requestURL, username, password, httpMethod string, body map[string]interface{}) (*http.Request, error) {
+	if requestURL == "bad" {
+		return nil, nil
 	}
 
 	var buf bytes.Buffer
@@ -71,7 +71,7 @@ func (m *MockHTTPClient) BuildPostBasicAuthRequest(requestURL, username, passwor
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept", "application/json")
 
-	return req
+	return req, nil
 }
 
 // Do mocks a request

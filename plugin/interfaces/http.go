@@ -16,7 +16,7 @@ type IHTTPClient interface {
 	Do(req *http.Request) (*http.Response, error)
 	// BuildBasicAuthRequest creates an http.Request with basic authoriztion header.
 	// body must be map[string]interface{}
-	BuildBasicAuthRequest(requestURL, username, password, httpMethod string, body map[string]interface{}) *http.Request
+	BuildBasicAuthRequest(requestURL, username, password, httpMethod string, body map[string]interface{}) (*http.Request, error)
 	// ReadHTTPResponse returns the response body as map[string]interface{}
 	ReadHTTPResponse(res *http.Response) (map[string]interface{}, error)
 }

@@ -91,7 +91,11 @@ func (m *Database) CreateUser(ctx context.Context, statements dbplugin.Statement
 
 	var url = fmt.Sprintf("%s/_xpack/security/user/%s", m.ConnectionURL, newUsername)
 
-	var request = m.HTTPClient.BuildBasicAuthRequest(url, m.Username, m.Password, "POST", body)
+	request, err := m.HTTPClient.BuildBasicAuthRequest(url, m.Username, m.Password, "POST", body)
+
+	if err != nil {
+		return "", "", err
+	}
 
 	res, err := m.HTTPClient.Do(request)
 
@@ -126,7 +130,26 @@ func (m *Database) RenewUser(ctx context.Context, statements dbplugin.Statements
 
 // RevokeUser drops the specified user from the authentication database.
 func (m *Database) RevokeUser(ctx context.Context, statements dbplugin.Statements, username string) error {
-	// TODO call elastic to delete the user
+	var url = fmt.Sprintf("%s/_xpack/security/user/%s", m.ConnectionURL, username)
+
+	request, err := m.HTTPClient.BuildBasicAuthRequest(url, m.Username, m.Password, "DELETE", nil)
+
+	if err != nil {
+		return err
+	}
+
+	res, err := m.HTTPClient.Do(request)
+
+	if err != nil {
+		return err
+	}
+
+	_, err = m.HTTPClient.ReadHTTPResponse(res)
+
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
