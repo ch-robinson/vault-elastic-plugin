@@ -77,10 +77,10 @@ endif
 
 test-plugin: 
 ifeq ($(INCLUDE_BUILD),true)
-	make build 
+	make -s build 
 endif
 
-ifeq ($(SKIP_VAULT_CONFIG), false)
+ifeq ($(ENABLE_VAULT_DB), true)
 	@echo "Enabling Vault database"
 	@VAULT_ADDR=http://127.0.0.1:8200 VAULT_TOKEN=${LOCAL_VAULT_ROOT_TOKEN} vault${EXECUTABLE_EXT} secrets enable database
 endif
