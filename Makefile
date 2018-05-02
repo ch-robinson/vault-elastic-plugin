@@ -11,6 +11,7 @@ else
 	EXECUTABLE_EXT :=
 endif
 
+LOCAL_VAULT_ROOT_TOKEN := sampleroottoken
 PLUGIN_DIRECTORY := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))bin/$(shell echo $(DETECTED_OS) | tr A-Z a-z)
 
 
@@ -70,7 +71,7 @@ ifeq ($(DETECTED_OS),Windows)
 else 
 	@echo 'plugin_directory = "$(PLUGIN_DIRECTORY)"' > ${PLUGIN_DIRECTORY}/config.hcl
 endif
-	vault${EXECUTABLE_EXT} server -dev -config ${PLUGIN_DIRECTORY}/config.hcl
+	vault${EXECUTABLE_EXT} server -dev -dev-root-token-id="${LOCAL_VAULT_ROOT_TOKEN}" -config ${PLUGIN_DIRECTORY}/config.hcl
 
 .PHONY: run-vault
 
@@ -79,17 +80,20 @@ ifeq ($(INCLUDE_BUILD),true)
 	make build 
 endif
 
-ifeq ($(RUN_ONLY), false)
+ifeq ($(SKIP_VAULT_CONFIG), false)
 	@echo "Enabling Vault database"
-	@VAULT_ADDR=http://127.0.0.1:8200 vault${EXECUTABLE_EXT} secrets enable database
-	
+	@VAULT_ADDR=http://127.0.0.1:8200 VAULT_TOKEN=${LOCAL_VAULT_ROOT_TOKEN} vault${EXECUTABLE_EXT} secrets enable database
+endif
+	@echo "Removing previous plugin"
+	@curl --header "X-VAULT-TOKEN:${LOCAL_VAULT_ROOT_TOKEN}" --request DELETE http://127.0.0.1:8200/v1/sys/plugins/catalog/vault-elastic-plugin
+
 	@echo "Registering plugin with Vault"
-	@VAULT_ADDR=http://127.0.0.1:8200 vault${EXECUTABLE_EXT} write sys/plugins/catalog/vault-elastic-plugin \
+	@VAULT_ADDR=http://127.0.0.1:8200 VAULT_TOKEN=${LOCAL_VAULT_ROOT_TOKEN} vault${EXECUTABLE_EXT} write sys/plugins/catalog/vault-elastic-plugin \
 	sha_256=$(shell openssl sha256 $(PLUGIN_DIRECTORY)/vault-elastic-plugin-x86-64$(EXECUTABLE_EXT) | sed 's,SHA256($(PLUGIN_DIRECTORY)/vault-elastic-plugin-x86-64$(EXECUTABLE_EXT))=,,g' | sed -e 's/^[[:space:]]*//') \
 	command="vault-elastic-plugin-x86-64${EXECUTABLE_EXT}"
 
 	@echo "Configuring Elastic connection and plugin"
-	@VAULT_ADDR=http://127.0.0.1:8200 vault${EXECUTABLE_EXT} write database/config/elastic_test \
+	@VAULT_ADDR=http://127.0.0.1:8200 VAULT_TOKEN=${LOCAL_VAULT_ROOT_TOKEN} vault${EXECUTABLE_EXT} write database/config/elastic_test \
 	connection_url=${ELASTIC_BASE_URI} \
 	username=${ELASTIC_USERNAME} \
 	password=${ELASTIC_PASSWORD} \
@@ -97,11 +101,10 @@ ifeq ($(RUN_ONLY), false)
 	allowed_roles="*"
 
 	@echo "Creating 'my-role'"
-	@VAULT_ADDR=http://127.0.0.1:8200 vault${EXECUTABLE_EXT} write database/roles/my-role \
+	@VAULT_ADDR=http://127.0.0.1:8200 VAULT_TOKEN=${LOCAL_VAULT_ROOT_TOKEN} vault${EXECUTABLE_EXT} write database/roles/my-role \
 	db_name=elastic_test \
 	creation_statements=kibanauser \
 	default_ttl=5
-endif
 
 	@echo "Running plugin..."
 	@# Example success:
@@ -116,6 +119,6 @@ endif
 	@# 	},
 	@# 	"warnings": null
 	@# }
-	@VAULT_ADDR=http://127.0.0.1:8200 vault read -format=json database/creds/my-role
+	@VAULT_ADDR=http://127.0.0.1:8200 VAULT_TOKEN=${LOCAL_VAULT_ROOT_TOKEN} vault read -format=json database/creds/my-role
 
 .PHONY: test-plugin

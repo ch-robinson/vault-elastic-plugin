@@ -20,9 +20,8 @@
 2. Add Vault to path
 3. In a new terminal run Vault: ```make run-vault```
 4. In a new terminal run: 
-    - With build and vault configuration: ```make test-plugin ELASTIC_BASE_URI=<uri> ELASTIC_PASSWORD=<password> ELASTIC_USERNAME=<username>```
-    - Without build: ```make test-plugin ELASTIC_BASE_URI=<uri> ELASTIC_PASSWORD=<password> ELASTIC_USERNAME=<username> INCLUDE_BUILD=false```
-    - Run plugin only (leave Vault running): ```make test-plugin ELASTIC_BASE_URI=<uri> ELASTIC_PASSWORD=<password> ELASTIC_USERNAME=<username> INCLUDE_BUILD=false RUN_ONLY=true```
+    - With build and vault DB configuration: ```make test-plugin ELASTIC_BASE_URI=<uri> ELASTIC_PASSWORD=<password> ELASTIC_USERNAME=<username> INCLUDE_BUILD=true ENABLE_VAULT_DB=true```
+    - Without build: ```make test-plugin ELASTIC_BASE_URI=<uri> ELASTIC_PASSWORD=<password> ELASTIC_USERNAME=<username> INCLUDE_BUILD=false ENABLE_VAULT_DB=true```
 
 ### Build
 
@@ -44,11 +43,4 @@ At the root of the project, run
 - Unix based: ```make depends```
 - Powershell (if make is not in path): ```C:\Program Files (x86)\GnuWin32\bin\make.exe depends```
 - bash for Windows (if make is not in path): ```/c/Program\ Files\ \(x86\)/GnuWin32/bin/make.exe depends```
-
-1. install dependencies
-```make depends```
-2. build
-```make build```
-3. test
-```make test```
 
