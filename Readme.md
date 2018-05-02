@@ -1,10 +1,8 @@
 # vault-elastic-plugin
 
-# Currently a work in progress
-
 ### Setup
 
-***NOTE: For Mac or linux, make should be installed by default so you can skip steps 2 and 3 ***
+*** NOTE: For Mac or linux, make should be installed by default so you can skip steps 2 and 3 ***
 
 1. Install Golang: [Go Install](https://golang.org/doc/install)
 2. Install Make: [GNU Make Install](http://gnuwin32.sourceforge.net/packages/make.htm)
