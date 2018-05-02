@@ -9,7 +9,6 @@ import (
 	"github.com/ch-robinson/vault-elastic-plugin/plugin/interfaces"
 	"github.com/hashicorp/vault/api"
 	"github.com/hashicorp/vault/builtin/logical/database/dbplugin"
-	"github.com/hashicorp/vault/plugins"
 	"github.com/hashicorp/vault/plugins/helper/database/credsutil"
 )
 
@@ -48,14 +47,14 @@ func New(httpClient interfaces.IHTTPClient) (interface{}, error) {
 }
 
 // Run instantiates the Database struct, and runs the RPC server for the plugin
-func Run(apiTLSConfig *api.TLSConfig, httpClient interfaces.IHTTPClient) error {
+func Run(serve func(plugin interface{}, tlsConfig *api.TLSConfig), apiTLSConfig *api.TLSConfig, httpClient interfaces.IHTTPClient) error {
 	dbType, err := New(httpClient)
 
 	if err != nil {
 		return err
 	}
 
-	plugins.Serve(dbType, apiTLSConfig)
+	serve(dbType, apiTLSConfig)
 
 	return nil
 }

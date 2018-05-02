@@ -8,6 +8,7 @@ import (
 	"github.com/ch-robinson/vault-elastic-plugin/plugin/elastic"
 	"github.com/ch-robinson/vault-elastic-plugin/plugin/util"
 	"github.com/hashicorp/vault/helper/pluginutil"
+	"github.com/hashicorp/vault/plugins"
 )
 
 func main() {
@@ -17,7 +18,7 @@ func main() {
 
 	clientWrapper := util.NewHTTPClient(&http.Client{})
 
-	if err := elastic.Run(apiClientMeta.GetTLSConfig(), clientWrapper); err != nil {
+	if err := elastic.Run(plugins.Serve, apiClientMeta.GetTLSConfig(), clientWrapper); err != nil {
 		log.Println(err)
 		os.Exit(1)
 	}

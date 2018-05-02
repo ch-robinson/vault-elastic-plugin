@@ -1,11 +1,41 @@
-## 0.10.1 (Unreleased)
+## 0.10.2 (Unreleased)
+
+IMPROVEMENTS:
+
+ * cli: `vault login` now supports a `-no-print` flag to suppress printing
+   token information but still allow storing into the token helper [GH-4454]
+ * expiration: Allow revoke-prefix and revoke-force to work on single leases as
+   well as prefixes [GH-4450]
+
+BUG FIXES:
+
+ * secret/pki: Fix path length parameter being ignored when using
+   `use_csr_values` and signing an intermediate CA cert [GH-4459]
+
+## 0.10.1/0.9.7 (April 25th, 2018)
+
+The following two items are in both 0.9.7 and 0.10.1. They only affect
+Enterprise, and as such 0.9.7 is an Enterprise-only release:
+
+SECURITY:
+
+ * EGPs: A regression affecting 0.9.6 and 0.10.0 causes EGPs to not be applied
+   correctly if an EGP is updated in a running Vault after initial write or
+   after it is loaded on unseal. This has been fixed.
+
+BUG FIXES:
+
+ * Fixed an upgrade issue affecting performance secondaries when migrating from
+   a version that did not include Identity to one that did.
+
+All other content in this release is for 0.10.1 only.
 
 DEPRECATIONS/CHANGES:
 
  * `vault kv` and Vault versions: In 0.10.1 some issues with `vault kv` against
    v1 K/V engine mounts are fixed. However, using 0.10.1 for both the server
    and CLI versions is required.
- * Mount information visiblity: Users that have access to any path within a
+ * Mount information visibility: Users that have access to any path within a
    mount can now see information about that mount, such as its type and
    options, via some API calls.
  * Identity and Local Mounts: Local mounts would allow creating Identity
@@ -25,6 +55,9 @@ FEATURES:
  * `vault kv patch` command: A new `kv patch` helper command that allows
    modifying only some values in existing data at a K/V path, but uses
    check-and-set to ensure that this modification happens safely.
+ * AppRole Local Secret IDs: Roles can now be configured to generate secret IDs
+   local to the cluster. This enables performance secondaries to generate and
+   consume secret IDs without contacting the primary.
  * AES-GCM Support for PKCS#11 [BETA] (Enterprise): For supporting HSMs,
    AES-GCM can now be used in lieu of AES-CBC/HMAC-SHA256. This has currently
    only been fully tested on AWS CloudHSM.
@@ -36,7 +69,7 @@ FEATURES:
 IMPROVEMENTS:
 
  * auth/approle: Support for cluster local secret IDs. This enables secondaries
-   to generate secret IDs without contacting the primary [GH-4427] (enterprise)
+   to generate secret IDs without contacting the primary [GH-4427]
  * auth/token: Add to the token lookup response, the policies inherited due to
    identity associations [GH-4366]
  * auth/token: Add CIDR binding to token roles [GH-815]

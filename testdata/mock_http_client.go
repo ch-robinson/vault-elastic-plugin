@@ -5,8 +5,8 @@ import (
 	"encoding/gob"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/ch-robinson/vault-elastic-plugin/plugin/interfaces"
 )
@@ -22,47 +22,43 @@ func NewMockHTTPClient(responseBody *string, client interfaces.IHTTP) interfaces
 	return &MockHTTPClient{responseBody, client}
 }
 
-// Get mocks Get
-func (m *MockHTTPClient) Get(url string, accessToken, authType *string) (*http.Response, error) {
-	if url == "bad" {
-		return nil, errors.New("get test error")
-	}
-	fmt.Printf("\n\n%s\n\n", *m.responseBody)
-	readCloser := newClosingBuffer(bytes.NewBufferString(*m.responseBody)).GetReadCloser()
-
-	return &http.Response{
-		Status:     "success",
-		StatusCode: 200,
-		Body:       readCloser,
-	}, nil
-}
-
 // BuildPostBasicAuthRequest mocks building a post request with basic auth
 func (m *MockHTTPClient) BuildBasicAuthRequest(requestURL, username, password, httpMethod string, body map[string]interface{}) (*http.Request, error) {
-	if requestURL == "bad" {
+	if strings.Contains(requestURL, "bad") {
+		return nil, errors.New("bad request url")
+	}
+
+	if strings.Contains(requestURL, "failedbutcontinue") {
 		return nil, nil
 	}
 
-	var buf bytes.Buffer
+	var req *http.Request
+	var err error
 
-	enc := gob.NewEncoder(&buf)
+	if body != nil && len(body) > 0 {
+		var buf bytes.Buffer
 
-	gob.Register(map[string]interface{}{})
-	gob.Register([]interface{}{})
+		enc := gob.NewEncoder(&buf)
 
-	err := enc.Encode(body)
+		gob.Register(map[string]interface{}{})
+		gob.Register([]interface{}{})
 
-	if err != nil {
-		panic(err)
+		err = enc.Encode(body)
+
+		if err != nil {
+			panic(err)
+		}
+
+		readCloser := newClosingBuffer(bytes.NewBufferString(*m.responseBody)).GetReadCloser()
+
+		if err != nil {
+			panic(err)
+		}
+
+		req, err = http.NewRequest(httpMethod, requestURL, readCloser)
+	} else {
+		req, err = http.NewRequest(httpMethod, requestURL, nil)
 	}
-
-	readCloser := newClosingBuffer(bytes.NewBufferString(*m.responseBody)).GetReadCloser()
-
-	if err != nil {
-		panic(err)
-	}
-
-	req, err := http.NewRequest("POST", "", readCloser)
 
 	if err != nil {
 		panic(err)

@@ -18,21 +18,6 @@ func NewMockHTTP(responseBody *string) interfaces.IHTTP {
 	return &MockHTTP{responseBody}
 }
 
-// Get Mock Get request
-func (m *MockHTTP) Get(url string) (resp *http.Response, err error) {
-	if url == "bad" {
-		return nil, errors.New("http get test error")
-	}
-
-	readCloser := newClosingBuffer(bytes.NewBufferString(*m.responseBody)).GetReadCloser()
-
-	return &http.Response{
-		Status:     "success",
-		StatusCode: 200,
-		Body:       readCloser,
-	}, nil
-}
-
 // Do Mock Do request
 func (m *MockHTTP) Do(req *http.Request) (*http.Response, error) {
 	if req == nil {

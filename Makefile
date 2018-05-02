@@ -103,19 +103,19 @@ ifeq ($(RUN_ONLY), false)
 	default_ttl=5
 endif
 
-	@echo "Running plugin"
-	# Example success:
-	# {
-	# 	"request_id": "ee9ba65f-465f-a187-0c05-83afe0de1008",
-	# 	"lease_id": "database/creds/my-role/b01dd000-ad88-d617-0480-b9fd7494914e",
-	# 	"lease_duration": 2764800,
-	# 	"renewable": true,
-	# 	"data": {
-	# 		"password": "A1a-7uxq992801vr2wv3",
-	# 		"username": "v-root-my-role-7yxuu1x67wu91q2"
-	# 	},
-	# 	"warnings": null
-	# }
+	@echo "Running plugin..."
+	@# Example success:
+	@# {
+	@# 	"request_id": "ee9ba65f-465f-a187-0c05-83afe0de1008",
+	@# 	"lease_id": "database/creds/my-role/b01dd000-ad88-d617-0480-b9fd7494914e",
+	@# 	"lease_duration": 2764800,
+	@# 	"renewable": true,
+	@# 	"data": {
+	@# 		"password": "A1a-7uxq992801vr2wv3",
+	@# 		"username": "v-root-my-role-7yxuu1x67wu91q2"
+	@# 	},
+	@# 	"warnings": null
+	@# }
 	@VAULT_ADDR=http://127.0.0.1:8200 vault read -format=json database/creds/my-role
 
 .PHONY: test-plugin
