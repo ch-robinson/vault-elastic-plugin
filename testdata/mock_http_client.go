@@ -26,6 +26,8 @@ func NewMockHTTPClient(responseBody *string, client interfaces.IHTTP) interfaces
 func (m *MockHTTPClient) BuildBasicAuthRequest(requestURL, username, password, httpMethod string, body map[string]interface{}) (*http.Request, error) {
 	if strings.Contains(requestURL, "bad") {
 		return nil, errors.New("bad request url")
+	} else if strings.Contains(requestURL, "nouser") {
+		return nil, errors.New("user doesn't exist")
 	}
 
 	if strings.Contains(requestURL, "failedbutcontinue") {
