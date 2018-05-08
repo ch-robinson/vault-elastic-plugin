@@ -212,3 +212,31 @@ func TestRotateRootCredentialsNotImplemented(t *testing.T) {
 
 	assert.Equal(t, "root credentaion rotation is not currently implemented in this database secrets engine", err.Error())
 }
+
+func TestRevokeUserFail(t *testing.T) {
+	res := `{}`
+
+	db := initializeDatabase(&res, nil)
+
+	ctx := testdata.NewMockVaultContext()
+
+	statements := dbplugin.Statements{}
+
+	err := db.RevokeUser(ctx, statements, "nouser")
+
+	assert.Equal(t, "user doesn't exist", err.Error())
+}
+
+func TestRevokeUserSuccess(t *testing.T) {
+	res := `{}`
+
+	db := initializeDatabase(&res, nil)
+
+	ctx := testdata.NewMockVaultContext()
+
+	statements := dbplugin.Statements{}
+
+	err := db.RevokeUser(ctx, statements, "MySuccessTestUser")
+
+	assert.Nil(t, err)
+}
