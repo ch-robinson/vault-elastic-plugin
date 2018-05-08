@@ -152,7 +152,36 @@ func (m *Database) RevokeUser(ctx context.Context, statements dbplugin.Statement
 	return nil
 }
 
-// RotateRootCredentials is not currently supported here
+// RotateRootCredentials rotates the root superuser credentials stored for the database connection
 func (m *Database) RotateRootCredentials(ctx context.Context, statements []string) (map[string]interface{}, error) {
-	return nil, errors.New("root credentaion rotation is not currently implemented in this database secrets engine")
+	if len(m.Username) == 0 || len(m.Password) == 0 {
+		return nil, errors.New("Both the username and password are required.")
+	}
+
+	password, err := m.GeneratePassword()
+
+	if err != nil {
+		return nil, err
+	}
+
+	var body = make(map[string]interface{})
+	body["password"] = password
+
+	url := fmt.Sprintf("%s/_xpack/security/user/%s/_password", m.ConnectionURL, m.Username)
+
+	request, err := m.HTTPClient.BuildBasicAuthRequest(url, m.Username, m.Password, "PUT", body)
+
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := m.HTTPClient.Do(request)
+
+	if err == nil || res.StatusCode == 200 {
+		// Need to return the password back to Vault so it knows what the new password is
+		m.RawConfig["password"] = password
+		return m.RawConfig, nil
+	}
+
+	return m.RawConfig, err
 }
