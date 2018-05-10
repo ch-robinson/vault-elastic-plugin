@@ -21,7 +21,7 @@ func initializeDatabase(response, connURL *string) *Database {
 	}
 
 	mockRawconfig := make(map[string]interface{})
-	mockRawconfig["password"] = "abcdefg123456"
+	mockRawconfig["password"] = "testpassword"
 
 	return &Database{
 		connectionProducer: &connectionProducer{
@@ -246,4 +246,26 @@ func TestRotateRootCredentialsSuccess(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, db.RawConfig["password"], response["password"])
+}
+
+func TestRotateRootCredentialsFailWithoutConnectionCredentials(t *testing.T) {
+	res := `{}`
+
+	db := initializeDatabase(&res, nil)
+	db.Username = ""
+
+	_, err := db.RotateRootCredentials(testdata.NewMockVaultContext(), []string{})
+
+	assert.Equal(t, "Both the username and password are required.", err.Error())
+}
+
+func TestRotateRootCredentialsFailOnBadUsername(t *testing.T) {
+	res := `{}`
+
+	db := initializeDatabase(&res, nil)
+	db.Username = "nouser"
+
+	_, err := db.RotateRootCredentials(testdata.NewMockVaultContext(), []string{})
+
+	assert.Equal(t, "user doesn't exist", err.Error())
 }
