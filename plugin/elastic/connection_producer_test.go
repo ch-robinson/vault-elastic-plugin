@@ -95,3 +95,14 @@ func TestClose(t *testing.T) {
 
 	assert.Nil(t, err)
 }
+
+func TestSecretValues(t *testing.T) {
+	urlString := "http://testurl"
+	var empty string
+
+	cp := initializeConnectionProducer(&empty, &urlString)
+
+	secretValues := cp.SecretValues()
+
+	assert.NotNil(t, secretValues)
+}
