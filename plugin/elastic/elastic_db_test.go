@@ -20,6 +20,9 @@ func initializeDatabase(response, connURL *string) *Database {
 		url = *connURL
 	}
 
+	mockRawconfig := make(map[string]interface{})
+	mockRawconfig["password"] = "testpassword"
+
 	return &Database{
 		connectionProducer: &connectionProducer{
 			Type:          ElasticTypeName,
@@ -27,6 +30,7 @@ func initializeDatabase(response, connURL *string) *Database {
 			ConnectionURL: url,
 			Username:      "testuser",
 			Password:      "testpassword",
+			RawConfig:     mockRawconfig,
 		},
 		// we can still use this struct despite the name
 		CredentialsProducer: &credsutil.SQLCredentialsProducer{
@@ -205,14 +209,6 @@ func TestRenewUserNotImplemented(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestRotateRootCredentialsNotImplemented(t *testing.T) {
-	db := initializeDatabase(nil, nil)
-
-	_, err := db.RotateRootCredentials(testdata.NewMockVaultContext(), []string{})
-
-	assert.Equal(t, "root credentaion rotation is not currently implemented in this database secrets engine", err.Error())
-}
-
 func TestRevokeUserFail(t *testing.T) {
 	res := `{}`
 
@@ -239,4 +235,37 @@ func TestRevokeUserSuccess(t *testing.T) {
 	err := db.RevokeUser(ctx, statements, "MySuccessTestUser")
 
 	assert.Nil(t, err)
+}
+
+func TestRotateRootCredentialsSuccess(t *testing.T) {
+	res := `{}`
+
+	db := initializeDatabase(&res, nil)
+
+	response, err := db.RotateRootCredentials(testdata.NewMockVaultContext(), []string{})
+
+	assert.Nil(t, err)
+	assert.Equal(t, db.RawConfig["password"], response["password"])
+}
+
+func TestRotateRootCredentialsFailWithoutConnectionCredentials(t *testing.T) {
+	res := `{}`
+
+	db := initializeDatabase(&res, nil)
+	db.Username = ""
+
+	_, err := db.RotateRootCredentials(testdata.NewMockVaultContext(), []string{})
+
+	assert.Equal(t, "Both the username and password are required.", err.Error())
+}
+
+func TestRotateRootCredentialsFailOnBadUsername(t *testing.T) {
+	res := `{}`
+
+	db := initializeDatabase(&res, nil)
+	db.Username = "nouser"
+
+	_, err := db.RotateRootCredentials(testdata.NewMockVaultContext(), []string{})
+
+	assert.Equal(t, "user doesn't exist", err.Error())
 }

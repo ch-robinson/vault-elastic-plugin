@@ -28,9 +28,7 @@ func (m *MockHTTPClient) BuildBasicAuthRequest(requestURL, username, password, h
 		return nil, errors.New("bad request url")
 	} else if strings.Contains(requestURL, "nouser") {
 		return nil, errors.New("user doesn't exist")
-	}
-
-	if strings.Contains(requestURL, "failedbutcontinue") {
+	} else if strings.Contains(requestURL, "failedbutcontinue") {
 		return nil, nil
 	}
 
