@@ -11,23 +11,25 @@
     - Windows - install to "C:\glide" and set path ```SET PATH=%PATH%;C:\glide```
     - Mac - ```brew install glide```
 5. ```go get github.com/CH-Robinson/vault-elastic-plugin```
-
-### Testing locally
-
-1. Download [Vault](https://www.vaultproject.io/downloads.html) and extract the compressed file to the location of your choosing
-2. Add Vault to path
-3. In a new terminal run Vault: ```make run-vault```
-4. In a new terminal run: 
-    - With build and vault DB configuration: ```make test-plugin ELASTIC_BASE_URI=<uri> ELASTIC_PASSWORD=<password> ELASTIC_USERNAME=<username> INCLUDE_BUILD=true ENABLE_VAULT_DB=true```
-    - Without build: ```make test-plugin ELASTIC_BASE_URI=<uri> ELASTIC_PASSWORD=<password> ELASTIC_USERNAME=<username> INCLUDE_BUILD=false ENABLE_VAULT_DB=true```
+6. Download [Vault](https://www.vaultproject.io/downloads.html) and extract the compressed file to the location of your choosing
+7. Add Vault to path
 
 ### Build
 
+At the root of the project, run 
 - Unix based: ```make build```
 - Powershell (if make is not in path): ```C:\Program Files (x86)\GnuWin32\bin\make.exe build```
 - bash for Windows (if make is not in path): ```/c/Program\ Files\ \(x86\)/GnuWin32/bin/make.exe build```
 
 The executable binary is located ../bin/run
+
+### Testing locally
+
+1. Build it (see above)
+2. In a new terminal at the root of the project, run Vault: ```make run-vault```
+3. In a new terminal run: 
+    - With build and vault DB configuration: ```make test-plugin ELASTIC_BASE_URI=<uri> ELASTIC_PASSWORD=<password> ELASTIC_USERNAME=<username> INCLUDE_BUILD=true ENABLE_VAULT_DB=true```
+    - Without build: ```make test-plugin ELASTIC_BASE_URI=<uri> ELASTIC_PASSWORD=<password> ELASTIC_USERNAME=<username> INCLUDE_BUILD=false ENABLE_VAULT_DB=true```
 
 ### Unit Testing
 
