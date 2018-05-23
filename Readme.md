@@ -10,7 +10,7 @@
 4. Install glide [glide](https://github.com/Masterminds/glide)
     - Windows - install to "C:\glide" and set path ```SET PATH=%PATH%;C:\glide```
     - Mac - ```brew install glide```
-5. ```go get github.com/CH-Robinson/vault-elastic-plugin```
+5. ```go get github.com/ch-robinson/vault-elastic-plugin```
 
 ### Testing locally
 
