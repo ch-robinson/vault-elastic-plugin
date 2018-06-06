@@ -1,5 +1,0 @@
-{
-    "git.ignoreLimitWarning": true,
-    "go.testOnSave": true,
-    "go.coverOnSave": true
-}
