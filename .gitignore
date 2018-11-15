@@ -3,3 +3,5 @@ debug*
 config.hcl
 *.exe~
 bin
+.vscode
+.idea

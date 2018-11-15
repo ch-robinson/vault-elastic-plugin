@@ -1,7 +1,7 @@
 MAIN_VERSION:=$(shell git describe --always || echo "1.0")
 VERSION:=${MAIN_VERSION}\#$(shell git log -n 1 --pretty=format:"%h")
-PACKAGES:=$(shell go list ./... | sed -n '1!p' | grep -v -e /vendor/ -e github.com/ch-robinson/vault-elastic-plugin/plugin/interfaces)
-LDFLAGS:=-ldflags "-X github.com/ch-robinson/vault-elastic-plugin/plugin.Version=${VERSION}"
+PACKAGES:=$(shell go list ./... | sed -n '1!p' | grep -v -e /vendor/)
+LDFLAGS:=-ldflags "-X github.com/ch-robinson/vault-elastic-plugin/main.Version=${VERSION}"
 
 ifeq ($(OS),Windows_NT)
     DETECTED_OS := Windows
@@ -20,14 +20,6 @@ default: test
 	
 test:
 	@echo "mode: count" > coverage-all.out
-	@echo
-	@echo "************** SKIPPING TESTS IN PACKAGES ****************"
-	@echo
-	@echo "skipping github.com/ch-robinson/vault-elastic-plugin/plugin/interfaces"
-	@echo
-	@echo "**********************************************************"
-	@echo
-
 	@$(foreach pkg,$(PACKAGES), \
 		go test -p=1 -cover -covermode=count -coverprofile=coverage.out ${pkg} || exit 1; \
 		tail -n +2 coverage.out >> coverage-all.out;)

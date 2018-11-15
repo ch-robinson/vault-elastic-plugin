@@ -256,7 +256,7 @@ func TestRotateRootCredentialsFailWithoutConnectionCredentials(t *testing.T) {
 
 	_, err := db.RotateRootCredentials(testdata.NewMockVaultContext(), []string{})
 
-	assert.Equal(t, "Both the username and password are required.", err.Error())
+	assert.Equal(t, "both the username and password are required", err.Error())
 }
 
 func TestRotateRootCredentialsFailOnBadUsername(t *testing.T) {

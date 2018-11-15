@@ -1,6 +1,6 @@
 # vault-elastic-plugin
 
-### Setup
+## Setup
 
 *** NOTE: For Mac or linux, make should be installed by default so you can skip steps 2 and 3 ***
 
@@ -14,7 +14,7 @@
 6. Download [Vault](https://www.vaultproject.io/downloads.html) and extract the compressed file to the location of your choosing
 7. Add Vault to path
 
-### Build
+## Build
 
 At the root of the project, run 
 - Unix based: ```make build```
@@ -23,7 +23,7 @@ At the root of the project, run
 
 The executable binary is located ../bin/run
 
-### Testing locally
+## Testing locally
 
 1. Build it (see above)
 2. In a new terminal at the root of the project, run Vault: ```make run-vault```
@@ -31,16 +31,14 @@ The executable binary is located ../bin/run
     - With build and vault DB configuration: ```make test-plugin ELASTIC_BASE_URI=<uri> ELASTIC_PASSWORD=<password> ELASTIC_USERNAME=<username> INCLUDE_BUILD=true ENABLE_VAULT_DB=true```
     - Without build: ```make test-plugin ELASTIC_BASE_URI=<uri> ELASTIC_PASSWORD=<password> ELASTIC_USERNAME=<username> INCLUDE_BUILD=false ENABLE_VAULT_DB=true```
 
-### Unit Testing
+## Unit Testing
 
-At the root of the project, run 
 - Unix based: ```make test```
 - Powershell (if make is not in path): ```C:\Program Files (x86)\GnuWin32\bin\make.exe test```
 - bash for Windows (if make is not in path): ```/c/Program\ Files\ \(x86\)/GnuWin32/bin/make.exe test```
 
-### Dependencies
+## Dependencies
 
 - Unix based: ```make depends```
 - Powershell (if make is not in path): ```C:\Program Files (x86)\GnuWin32\bin\make.exe depends```
 - bash for Windows (if make is not in path): ```/c/Program\ Files\ \(x86\)/GnuWin32/bin/make.exe depends```
-

@@ -1,32 +1,49 @@
-package util
+package httputil
 
 import (
 	"bytes"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
-
-	"github.com/ch-robinson/vault-elastic-plugin/plugin/interfaces"
 )
 
-// HTTPClient is the wrapper for interacting with http methods
-type HTTPClient struct {
-	client interfaces.IHTTP
+// HTTP is the interface for http.Client
+// https://golang.org/pkg/net/http/
+type httpWrapper interface {
+	// Do wraps the http.Client Do function
+	Do(req *http.Request) (*http.Response, error)
 }
 
-// NewHTTPClient instantiates a new HttpClient
-func NewHTTPClient(client interfaces.IHTTP) *HTTPClient {
-	return &HTTPClient{client}
+// ClientWrapperer is the interface for functions relating to building http request
+type ClientWrapperer interface {
+	// Do peforms an http request. This is just a wrapper for the http.Client function
+	// calls HTTP.Do for ease of testing
+	Do(req *http.Request) (*http.Response, error)
+	// BuildBasicAuthRequest creates an http.Request with basic authoriztion header.
+	// body must be map[string]interface{}
+	BuildBasicAuthRequest(requestURL, username, password, httpMethod string, body map[string]interface{}) (*http.Request, error)
+	// ReadHTTPResponse returns the response body as map[string]interface{}
+	ReadHTTPResponse(res *http.Response) (map[string]interface{}, error)
+}
+
+// ClientWrapper is the wrapper for interacting with http methods
+type ClientWrapper struct {
+	client httpWrapper
+}
+
+// New instantiates a new ClientWrapper
+func New(client httpWrapper) *ClientWrapper {
+	return &ClientWrapper{client}
 }
 
 // Do peforms an http request
-func (c *HTTPClient) Do(req *http.Request) (*http.Response, error) {
+func (c *ClientWrapper) Do(req *http.Request) (*http.Response, error) {
 	return c.client.Do(req)
 }
 
 // BuildBasicAuthRequest creates an http.Request with basic authoriztion header.
 // body must be map[string]interface{}
-func (c *HTTPClient) BuildBasicAuthRequest(requestURL, username, password, httpMethod string, body map[string]interface{}) (*http.Request, error) {
+func (c *ClientWrapper) BuildBasicAuthRequest(requestURL, username, password, httpMethod string, body map[string]interface{}) (*http.Request, error) {
 	var req *http.Request
 	var err error
 
@@ -59,7 +76,7 @@ func (c *HTTPClient) BuildBasicAuthRequest(requestURL, username, password, httpM
 }
 
 // ReadHTTPResponse returns the response body as map[string]interface{}
-func (c *HTTPClient) ReadHTTPResponse(res *http.Response) (map[string]interface{}, error) {
+func (c *ClientWrapper) ReadHTTPResponse(res *http.Response) (map[string]interface{}, error) {
 	resBody, err := ioutil.ReadAll(res.Body)
 
 	defer res.Body.Close()
@@ -85,7 +102,7 @@ func (c *HTTPClient) ReadHTTPResponse(res *http.Response) (map[string]interface{
 }
 
 // addHeaders adds http.Headers. If accessToken is provided, an Authorization header will be added with given authType (Bearer, token, etc.)
-func (c *HTTPClient) addHeaders(header *http.Header) {
+func (c *ClientWrapper) addHeaders(header *http.Header) {
 	header.Add("Content-Type", "application/json")
 	header.Add("Accept", "application/json")
 }
