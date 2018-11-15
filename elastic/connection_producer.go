@@ -17,7 +17,7 @@ type connectionProducer struct {
 	Password      string `json:"password" structs:"password" mapstructure:"password"`
 	RawConfig     map[string]interface{}
 	Type          string
-	HTTPClient    httputil.HTTPClienter
+	HTTPClient    httputil.ClientWrapperer
 	sync.RWMutex
 }
 

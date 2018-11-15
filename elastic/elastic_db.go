@@ -24,7 +24,7 @@ type Database struct {
 var _ dbplugin.Database = &Database{}
 
 // New returns a new Elastic instance with provided implementation of http.Client
-func New(httpClient httputil.HTTPClienter) (interface{}, error) {
+func New(httpClient httputil.ClientWrapperer) (interface{}, error) {
 	// setup struct
 	db := &Database{
 		connectionProducer: &connectionProducer{
@@ -47,7 +47,7 @@ func New(httpClient httputil.HTTPClienter) (interface{}, error) {
 }
 
 // Run instantiates the Database struct, and runs the RPC server for the plugin
-func Run(serve func(plugin interface{}, tlsConfig *api.TLSConfig), apiTLSConfig *api.TLSConfig, httpClient httputil.HTTPClienter) error {
+func Run(serve func(plugin interface{}, tlsConfig *api.TLSConfig), apiTLSConfig *api.TLSConfig, httpClient httputil.ClientWrapperer) error {
 	dbType, err := New(httpClient)
 
 	if err != nil {
@@ -155,7 +155,7 @@ func (m *Database) RevokeUser(ctx context.Context, statements dbplugin.Statement
 // RotateRootCredentials rotates the root superuser credentials stored for the database connection
 func (m *Database) RotateRootCredentials(ctx context.Context, statements []string) (map[string]interface{}, error) {
 	if len(m.Username) == 0 || len(m.Password) == 0 {
-		return nil, errors.New("Both the username and password are required.")
+		return nil, errors.New("both the username and password are required")
 	}
 
 	password, err := m.GeneratePassword()

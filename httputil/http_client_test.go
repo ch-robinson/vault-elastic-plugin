@@ -9,22 +9,22 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func initHTTPClient(resBody *string) *HTTPClient {
+func initClient(resBody *string) *ClientWrapper {
 	mockHTTP := testdata.NewMockHTTP(resBody)
-	httpClient := New(mockHTTP)
-	return httpClient
+	clientWrapper := New(mockHTTP)
+	return clientWrapper
 }
 
-func TestNewHTTPClient(t *testing.T) {
+func TestNewClient(t *testing.T) {
 	mockHTTP := testdata.NewMockHTTP(nil)
 
-	httpClient := New(mockHTTP)
+	clientWrapper := New(mockHTTP)
 
-	assert.Equal(t, mockHTTP, httpClient.client)
+	assert.Equal(t, mockHTTP, clientWrapper.client)
 }
 
 func TestReadHTTPResponse(t *testing.T) {
-	httpClient := initHTTPClient(nil)
+	clientWrapper := initClient(nil)
 
 	readCloser := NewClosingBuffer(bytes.NewBufferString("{\"test\":\"body\"}")).GetReadCloser()
 
@@ -34,17 +34,17 @@ func TestReadHTTPResponse(t *testing.T) {
 		Body:       readCloser,
 	}
 
-	response, err := httpClient.ReadHTTPResponse(res)
+	response, err := clientWrapper.ReadHTTPResponse(res)
 
 	assert.Nil(t, err)
 	assert.True(t, response != nil)
 }
 
 func TestAddHeaders(t *testing.T) {
-	httpClient := initHTTPClient(nil)
+	clientWrapper := initClient(nil)
 	var h http.Header = make(map[string][]string)
 
-	httpClient.addHeaders(&h)
+	clientWrapper.addHeaders(&h)
 
 	assert.Equal(t, "application/json", h.Get("Content-Type"))
 	assert.Equal(t, "application/json", h.Get("Accept"))
@@ -52,21 +52,21 @@ func TestAddHeaders(t *testing.T) {
 
 func TestDo(t *testing.T) {
 	b := "good"
-	httpClient := initHTTPClient(&b)
+	clientWrapper := initClient(&b)
 
 	req, _ := http.NewRequest("GET", "mocked", nil)
 
-	_, err := httpClient.Do(req)
+	_, err := clientWrapper.Do(req)
 
 	assert.Nil(t, err)
 }
 
 func TestBuildBasicAuthRequestWithBody(t *testing.T) {
-	httpClient := initHTTPClient(nil)
+	clientWrapper := initClient(nil)
 	body := make(map[string]interface{})
 	body["test"] = true
 
-	req, err := httpClient.BuildBasicAuthRequest("http://test", "testuser", "testpassword", "POST", body)
+	req, err := clientWrapper.BuildBasicAuthRequest("http://test", "testuser", "testpassword", "POST", body)
 
 	assert.Nil(t, err)
 	assert.NotNil(t, req)
@@ -74,9 +74,9 @@ func TestBuildBasicAuthRequestWithBody(t *testing.T) {
 }
 
 func TestBuildBasicAuthRequestNilBody(t *testing.T) {
-	httpClient := initHTTPClient(nil)
+	clientWrapper := initClient(nil)
 
-	req, err := httpClient.BuildBasicAuthRequest("http://test", "testuser", "testpassword", "DELETE", nil)
+	req, err := clientWrapper.BuildBasicAuthRequest("http://test", "testuser", "testpassword", "DELETE", nil)
 
 	assert.Nil(t, err)
 	assert.NotNil(t, req)
