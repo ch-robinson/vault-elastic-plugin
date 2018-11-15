@@ -7,18 +7,41 @@ import (
 	"errors"
 	"net/http"
 	"strings"
-
-	"github.com/ch-robinson/vault-elastic-plugin/plugin/interfaces"
 )
+
+// MockHTTP Mock object for http methods
+type MockHTTP struct {
+	responseBody *string
+}
+
+// NewMockHTTP instantiates a new MockHTTP
+func NewMockHTTP(responseBody *string) *MockHTTP {
+	return &MockHTTP{responseBody}
+}
+
+// Do Mock Do request
+func (m *MockHTTP) Do(req *http.Request) (*http.Response, error) {
+	if req == nil {
+		return nil, errors.New("http post test error")
+	}
+
+	readCloser := newClosingBuffer(bytes.NewBufferString(*m.responseBody)).GetReadCloser()
+
+	return &http.Response{
+		Status:     "success",
+		StatusCode: 200,
+		Body:       readCloser,
+	}, nil
+}
 
 // MockHTTPClient mocks HTTPClient
 type MockHTTPClient struct {
 	responseBody *string
-	client       interfaces.IHTTP
+	client       *MockHTTP
 }
 
 // NewMockHTTPClient instantiates a new mock http client
-func NewMockHTTPClient(responseBody *string, client interfaces.IHTTP) interfaces.IHTTPClient {
+func NewMockHTTPClient(responseBody *string, client *MockHTTP) *MockHTTPClient {
 	return &MockHTTPClient{responseBody, client}
 }
 

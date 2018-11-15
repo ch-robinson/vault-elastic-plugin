@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/ch-robinson/vault-elastic-plugin/plugin/interfaces"
+	"github.com/ch-robinson/vault-elastic-plugin/httputil"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -17,7 +17,7 @@ type connectionProducer struct {
 	Password      string `json:"password" structs:"password" mapstructure:"password"`
 	RawConfig     map[string]interface{}
 	Type          string
-	HTTPClient    interfaces.IHTTPClient
+	HTTPClient    httputil.HTTPClienter
 	sync.RWMutex
 }
 

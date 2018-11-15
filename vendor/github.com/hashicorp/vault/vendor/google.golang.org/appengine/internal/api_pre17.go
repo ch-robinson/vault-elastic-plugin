@@ -56,7 +56,7 @@ var (
 	apiContentTypeValue    = []string{"application/octet-stream"}
 	logFlushHeader         = http.CanonicalHeaderKey("X-AppEngine-Log-Flush-Count")
 
-	apiHTTPClient = &http.Client{
+	apHTTPClient = &http.Client{
 		Transport: &http.Transport{
 			Proxy: http.ProxyFromEnvironment,
 			Dial:  limitDial,
@@ -415,7 +415,7 @@ func (c *context) post(body []byte, timeout time.Duration) (b []byte, err error)
 		hreq.Header.Set(traceHeader, info)
 	}
 
-	tr := apiHTTPClient.Transport.(*http.Transport)
+	tr := apHTTPClient.Transport.(*http.Transport)
 
 	var timedOut int32 // atomic; set to 1 if timed out
 	t := time.AfterFunc(timeout, func() {
@@ -430,7 +430,7 @@ func (c *context) post(body []byte, timeout time.Duration) (b []byte, err error)
 		}
 	}()
 
-	hresp, err := apiHTTPClient.Do(hreq)
+	hresp, err := apHTTPClient.Do(hreq)
 	if err != nil {
 		return nil, &CallError{
 			Detail: fmt.Sprintf("service bridge HTTP failed: %v", err),

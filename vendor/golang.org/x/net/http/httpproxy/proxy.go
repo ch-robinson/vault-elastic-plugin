@@ -51,7 +51,7 @@ type Config struct {
 	// presence of a REQUEST_METHOD environment variable).
 	// When this is set, ProxyForURL will return an error
 	// when HTTPProxy applies, because a client could be
-	// setting HTTP_PROXY maliciously. See https://golang.org/s/cgihttpproxy.
+	// setting HTTP_PROXY maliciously. See https://golang.org/s/cgHTTPproxy.
 	CGI bool
 }
 
@@ -106,7 +106,7 @@ func (cfg *Config) proxyForURL(reqURL *url.URL) (*url.URL, error) {
 	if proxy == "" {
 		proxy = cfg.HTTPProxy
 		if proxy != "" && cfg.CGI {
-			return nil, errors.New("refusing to use HTTP_PROXY value in CGI environment; see golang.org/s/cgihttpproxy")
+			return nil, errors.New("refusing to use HTTP_PROXY value in CGI environment; see golang.org/s/cgHTTPproxy")
 		}
 	}
 	if proxy == "" {

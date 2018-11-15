@@ -1,4 +1,4 @@
-package util
+package httputil
 
 import (
 	"bytes"
@@ -11,14 +11,14 @@ import (
 
 func initHTTPClient(resBody *string) *HTTPClient {
 	mockHTTP := testdata.NewMockHTTP(resBody)
-	httpClient := NewHTTPClient(mockHTTP)
+	httpClient := New(mockHTTP)
 	return httpClient
 }
 
 func TestNewHTTPClient(t *testing.T) {
 	mockHTTP := testdata.NewMockHTTP(nil)
 
-	httpClient := NewHTTPClient(mockHTTP)
+	httpClient := New(mockHTTP)
 
 	assert.Equal(t, mockHTTP, httpClient.client)
 }

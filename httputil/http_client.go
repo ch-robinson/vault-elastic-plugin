@@ -1,21 +1,38 @@
-package util
+package httputil
 
 import (
 	"bytes"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
-
-	"github.com/ch-robinson/vault-elastic-plugin/plugin/interfaces"
 )
+
+// HTTP is the interface for http.Client
+// https://golang.org/pkg/net/http/
+type HTTPer interface {
+	// Do wraps the http.Client Do function
+	Do(req *http.Request) (*http.Response, error)
+}
+
+// HTTPClient is the interface for functions relating to building http request
+type HTTPClienter interface {
+	// Do peforms an http request. This is just a wrapper for the http.Client function
+	// calls HTTP.Do for ease of testing
+	Do(req *http.Request) (*http.Response, error)
+	// BuildBasicAuthRequest creates an http.Request with basic authoriztion header.
+	// body must be map[string]interface{}
+	BuildBasicAuthRequest(requestURL, username, password, httpMethod string, body map[string]interface{}) (*http.Request, error)
+	// ReadHTTPResponse returns the response body as map[string]interface{}
+	ReadHTTPResponse(res *http.Response) (map[string]interface{}, error)
+}
 
 // HTTPClient is the wrapper for interacting with http methods
 type HTTPClient struct {
-	client interfaces.IHTTP
+	client HTTPer
 }
 
 // NewHTTPClient instantiates a new HttpClient
-func NewHTTPClient(client interfaces.IHTTP) *HTTPClient {
+func New(client HTTPer) *HTTPClient {
 	return &HTTPClient{client}
 }
 

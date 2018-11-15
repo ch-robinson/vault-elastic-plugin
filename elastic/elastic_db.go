@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ch-robinson/vault-elastic-plugin/plugin/interfaces"
+	"github.com/ch-robinson/vault-elastic-plugin/httputil"
 	"github.com/hashicorp/vault/api"
 	"github.com/hashicorp/vault/builtin/logical/database/dbplugin"
 	"github.com/hashicorp/vault/plugins/helper/database/credsutil"
@@ -24,7 +24,7 @@ type Database struct {
 var _ dbplugin.Database = &Database{}
 
 // New returns a new Elastic instance with provided implementation of http.Client
-func New(httpClient interfaces.IHTTPClient) (interface{}, error) {
+func New(httpClient httputil.HTTPClienter) (interface{}, error) {
 	// setup struct
 	db := &Database{
 		connectionProducer: &connectionProducer{
@@ -47,7 +47,7 @@ func New(httpClient interfaces.IHTTPClient) (interface{}, error) {
 }
 
 // Run instantiates the Database struct, and runs the RPC server for the plugin
-func Run(serve func(plugin interface{}, tlsConfig *api.TLSConfig), apiTLSConfig *api.TLSConfig, httpClient interfaces.IHTTPClient) error {
+func Run(serve func(plugin interface{}, tlsConfig *api.TLSConfig), apiTLSConfig *api.TLSConfig, httpClient httputil.HTTPClienter) error {
 	dbType, err := New(httpClient)
 
 	if err != nil {
