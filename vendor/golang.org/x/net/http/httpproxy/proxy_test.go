@@ -119,7 +119,7 @@ var proxyForURLTests = []proxyForURLTest{{
 		CGI:       true,
 	},
 	want:    "<nil>",
-	wanterr: errors.New("refusing to use HTTP_PROXY value in CGI environment; see golang.org/s/cgihttpproxy"),
+	wanterr: errors.New("refusing to use HTTP_PROXY value in CGI environment; see golang.org/s/cgHTTPproxy"),
 }, {
 	// HTTPS proxy is still used even in CGI environment.
 	// (perhaps dubious but it's the historical behaviour).
